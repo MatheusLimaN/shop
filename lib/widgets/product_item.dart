@@ -1,49 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/constants/app_route.dart';
-import 'package:shop/providers/cart.dart';
 import 'package:shop/providers/product.dart';
+import 'package:shop/providers/products.dart';
 
 class ProductItem extends StatelessWidget {
+  final Product product;
+
+  const ProductItem({Key key, this.product}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    final Product product = Provider.of<Product>(context, listen: false);
-    final Cart cart = Provider.of<Cart>(context, listen: false);
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: GridTile(
-        child: GestureDetector(
-          onTap: () => Navigator.of(context)
-              .pushNamed(AppRoutes.PRODUCT_DETAIL, arguments: product),
-          child: Image.network(
-            product.imageUrl,
-            fit: BoxFit.cover,
-          ),
-        ),
-        footer: GridTileBar(
-          backgroundColor: Colors.black87,
-          leading: Consumer<Product>(
-            builder: (ctx, product, _) => IconButton(
-              icon: Icon(
-                  product.isFavorite ? Icons.favorite : Icons.favorite_border),
-              color: Theme.of(context).accentColor,
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundImage: NetworkImage(product.imageUrl),
+      ),
+      title: Text(product.title),
+      trailing: Container(
+        width: 100,
+        child: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.edit),
+              color: Theme.of(context).primaryColor,
               onPressed: () {
-                product.toggleFavorite();
+                Navigator.of(context)
+                    .pushNamed(AppRoutes.PRODUCT_FORM, arguments: product);
               },
             ),
-          ),
-          title: Text(
-            product.title,
-            textAlign: TextAlign.center,
-          ),
-          trailing: IconButton(
-            icon: Icon(Icons.shopping_cart),
-            color: Theme.of(context).accentColor,
-            onPressed: () {
-              cart.addItem(product);
-            },
-          ),
+            IconButton(
+              icon: Icon(Icons.delete),
+              color: Theme.of(context).errorColor,
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                          title: Text('Tem certeza?'),
+                          content: Text('Quer excluir o produto?'),
+                          actions: [
+                            TextButton(
+                              child: Text('Não'),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                            TextButton(
+                                child: Text('Sim'),
+                                onPressed: () {
+                                  Provider.of<Products>(context, listen: false)
+                                      .deleteProducts(product.id);
+                                  Navigator.of(context).pop();
+                                })
+                          ],
+                        ));
+              },
+            )
+          ],
         ),
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop/providers/products.dart';
-import 'package:shop/widgets/product_item.dart';
+import 'package:shop/widgets/product_grid_item.dart';
 
 class ProductGrid extends StatelessWidget {
   final bool showFavoriteOnly;
@@ -26,7 +26,7 @@ class ProductGrid extends StatelessWidget {
       ),
       itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
         value: products[i],
-        child: ProductItem(),
+        child: ProductGridItem(),
       ),
     );
   }
