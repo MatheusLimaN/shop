@@ -8,7 +8,6 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Cart cart = Provider.of<Cart>(context);
-    final Orders orders = Provider.of<Orders>(context);
     final cartItems = cart.items.values.toList();
 
     return Scaffold(
@@ -41,13 +40,7 @@ class CartScreen extends StatelessWidget {
                     backgroundColor: Theme.of(context).primaryColor,
                   ),
                   Spacer(),
-                  TextButton(
-                    onPressed: () {
-                      orders.addOrder(cart);
-                      cart.clear();
-                    },
-                    child: Text('COMPRAR'),
-                  )
+                  OrderButton(cart: cart)
                 ],
               ),
             ),
@@ -63,5 +56,43 @@ class CartScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton({
+    Key key,
+    @required this.cart,
+  }) : super(key: key);
+
+  final Cart cart;
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return _isLoading
+        ? CircularProgressIndicator()
+        : TextButton(
+            onPressed: widget.cart.totalAmount == 0
+                ? null
+                : () async {
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    await Provider.of<Orders>(context, listen: false)
+                        .addOrder(widget.cart);
+                    widget.cart.clear();
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  },
+            child: Text('COMPRAR'),
+          );
   }
 }
